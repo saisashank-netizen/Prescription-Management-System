@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prescription Management System</title>
+
+<style>
+
+    body{
+        font-family: Arial, sans-serif;
+        background:#f5f4f8;
+        margin:0;
+        padding:0;
+    }
+
+    h1,h2{
+        text-align:center;
+        color:#2c3e50;
+    }
+
+    .container{
+        width:400px;
+        margin:40px auto;
+        background:rgb(255, 255, 255);
+        padding:25px;
+        border-radius:10px;
+        box-shadow:0 0 10px gray;
+    }
+
+    input,select,button{
+        width:100%;
+        padding:10px;
+        margin:8px 0;
+        border:1px solid #ccc;
+        border-radius:5px;
+        box-sizing:border-box;
+    }
+
+    button{
+        background:#3498db;
+        color:white;
+        border:none;
+        cursor:pointer;
+    }
+
+    button:hover{
+        background:#2980b9;
+    }
+
+    .link{
+        text-align:center;
+        color:blue;
+        cursor:pointer;
+        margin-top:10px;
+    }
+
+    .hidden{
+        display:none;
+    }
+
+    .card{
+        background:#ecf0f1;
+        padding:10px;
+        margin-top:10px;
+        border-radius:5px;
+    }
+
+    #notification{
+        text-align:center;
+        font-weight:bold;
+        margin-top:10px;
+    }
+
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN PAGE -->
+
+<div class="container" id="loginPage">
+
+    <h1>Login</h1>
+
+    <input type="text" id="loginUser" placeholder="Username">
+
+    <input type="password" id="loginPass" placeholder="Password">
+
+    <button onclick="login()">Login</button>
+
+    <p class="link" onclick="showRegister()">
+        New User? Register Here
+    </p>
+
+</div>
+
+<!-- REGISTRATION PAGE -->
+
+<div class="container hidden" id="registerPage">
+
+    <h1>Registration</h1>
+
+    <input type="text" id="regUser" placeholder="Username">
+
+    <input type="password" id="regPass" placeholder="Password">
+
+    <button onclick="register()">Register</button>
+
+    <p class="link" onclick="showLogin()">
+        Already have an account? Login
+    </p>
+
+</div>
+
+<!-- HOME PAGE -->
+
+<div class="container hidden" id="homePage">
+
+    <h1>Prescription Management System</h1>
+
+    <h2>Create Prescription</h2>
+
+    <input type="text" id="patient" placeholder="Patient Name">
+
+    <input type="number" id="age" placeholder="Patient Age">
+
+    <select id="drug">
+
+        <option value="">Select Drug</option>
+
+        <option value="paracetamol">Paracetamol</option>
+
+        <option value="ibuprofen">Ibuprofen</option>
+
+        <option value="amoxicillin">Amoxicillin</option>
+
+        <option value="cetirizine">Cetirizine</option>
+
+        <option value="azithromycin">Azithromycin</option>
+
+        <option value="metformin">Metformin</option>
+
+        <option value="atorvastatin">Atorvastatin</option>
+
+        <option value="omeprazole">Omeprazole</option>
+
+        <option value="dolo">Dolo 650</option>
+
+        <option value="crocin">Crocin</option>
+
+        <option value="aspirin">Aspirin</option>
+
+        <option value="diclofenac">Diclofenac</option>
+
+        <option value="pantoprazole">Pantoprazole</option>
+
+        <option value="levocetirizine">Levocetirizine</option>
+
+    </select>
+
+    <input type="text" id="dosage" placeholder="Dosage" readonly>
+
+    <input type="number" id="days" placeholder="Number of Days">
+
+    <button onclick="calculateDosage()">
+        Calculate Dosage
+    </button>
+
+    <button onclick="savePrescription()">
+        Save Prescription
+    </button>
+
+    <button onclick="logout()">
+        Logout
+    </button>
+
+    <p id="notification"></p>
+
+    <h2>Prescription History</h2>
+
+    <div id="historyList"></div>
+
+</div>
+
+<script>
+
+    // Drug database
+
+    const drugs = {
+
+        "paracetamol": {
+            child: 250,
+            adult: 500
+        },
+
+        "ibuprofen": {
+            child: 200,
+            adult: 400
+        },
+
+        "amoxicillin": {
+            child: 250,
+            adult: 500
+        },
+
+        "cetirizine": {
+            child: 5,
+            adult: 10
+        },
+
+        "azithromycin": {
+            child: 250,
+            adult: 500
+        },
+
+        "metformin": {
+            child: 250,
+            adult: 500
+        },
+
+        "atorvastatin": {
+            child: 10,
+            adult: 20
+        },
+
+        "omeprazole": {
+            child: 10,
+            adult: 20
+        },
+
+        "dolo": {
+            child: 250,
+            adult: 650
+        },
+
+        "crocin": {
+            child: 250,
+            adult: 500
+        },
+
+        "aspirin": {
+            child: 75,
+            adult: 325
+        },
+
+        "diclofenac": {
+            child: 25,
+            adult: 50
+        },
+
+        "pantoprazole": {
+            child: 20,
+            adult: 40
+        },
+
+        "levocetirizine": {
+            child: 2.5,
+            adult: 5
+        }
+
+    };
+
+    // Show Registration Page
+
+    function showRegister(){
+
+        document.getElementById("loginPage")
+        .classList.add("hidden");
+
+        document.getElementById("registerPage")
+        .classList.remove("hidden");
+    }
+
+    // Show Login Page
+
+    function showLogin(){
+
+        document.getElementById("registerPage")
+        .classList.add("hidden");
+
+        document.getElementById("loginPage")
+        .classList.remove("hidden");
+    }
+
+    // Register User
+
+    function register(){
+
+        let username =
+        document.getElementById("regUser").value;
+
+        let password =
+        document.getElementById("regPass").value;
+
+        if(username === "" || password === ""){
+
+            alert("Please fill all fields");
+
+            return;
+        }
+
+        localStorage.setItem("username", username);
+
+        localStorage.setItem("password", password);
+
+        alert("Registration Successful!");
+
+        showLogin();
+    }
+
+    // Login Function
+
+    function login(){
+
+        let username =
+        document.getElementById("loginUser").value;
+
+        let password =
+        document.getElementById("loginPass").value;
+
+        let savedUser =
+        localStorage.getItem("username");
+
+        let savedPass =
+        localStorage.getItem("password");
+
+        if(username === savedUser &&
+           password === savedPass){
+
+            document.getElementById("loginPage")
+            .classList.add("hidden");
+
+            document.getElementById("homePage")
+            .classList.remove("hidden");
+
+            loadHistory();
+
+        }
+        else{
+
+            alert("Invalid Username or Password");
+        }
+    }
+
+    // Logout
+
+    function logout(){
+
+        document.getElementById("homePage")
+        .classList.add("hidden");
+
+        document.getElementById("loginPage")
+        .classList.remove("hidden");
+    }
+
+    // Calculate Dosage
+
+    function calculateDosage(){
+
+        const age =
+        document.getElementById("age").value;
+
+        const drug =
+        document.getElementById("drug").value;
+
+        if(age === "" || drug === ""){
+
+            showMessage(
+                "Enter age and select drug",
+                "red"
+            );
+
+            return;
+        }
+
+        let dosage;
+
+        if(age < 12){
+
+            dosage = drugs[drug].child;
+        }
+        else{
+
+            dosage = drugs[drug].adult;
+        }
+
+        document.getElementById("dosage")
+        .value = dosage + " mg";
+
+        showMessage(
+            "Dosage calculated successfully ✅",
+            "green"
+        );
+    }
+
+    // Save Prescription
+
+    function savePrescription(){
+
+        const patient =
+        document.getElementById("patient").value;
+
+        const age =
+        document.getElementById("age").value;
+
+        const drug =
+        document.getElementById("drug").value;
+
+        const dosage =
+        document.getElementById("dosage").value;
+
+        const days =
+        document.getElementById("days").value;
+
+        if(patient === "" ||
+           age === "" ||
+           drug === "" ||
+           dosage === "" ||
+           days === ""){
+
+            showMessage(
+                "Please fill all fields!",
+                "red"
+            );
+
+            return;
+        }
+
+        const prescription = {
+
+            patient,
+            age,
+            drug,
+            dosage,
+            days,
+
+            date:new Date().toLocaleString()
+        };
+
+        let history =
+        JSON.parse(
+            localStorage.getItem("prescriptions")
+        ) || [];
+
+        history.push(prescription);
+
+        localStorage.setItem(
+            "prescriptions",
+            JSON.stringify(history)
+        );
+
+        showMessage(
+            "Prescription Saved Successfully!",
+            "green"
+        );
+
+        loadHistory();
+
+        clearFields();
+    }
+
+    // Load History
+
+    function loadHistory(){
+
+        const historyList =
+        document.getElementById("historyList");
+
+        historyList.innerHTML = "";
+
+        let history =
+        JSON.parse(
+            localStorage.getItem("prescriptions")
+        ) || [];
+
+        history.forEach(p => {
+
+            const div =
+            document.createElement("div");
+
+            div.className = "card";
+
+            div.innerHTML = `
+
+                <strong>${p.patient}</strong><br>
+
+                Age: ${p.age}<br>
+
+                Drug: ${p.drug}<br>
+
+                Dosage: ${p.dosage}<br>
+
+                Days: ${p.days}<br>
+
+                <small>${p.date}</small>
+
+            `;
+
+            historyList.appendChild(div);
+
+        });
+    }
+
+    // Show Message
+
+    function showMessage(msg,color){
+
+        const note =
+        document.getElementById("notification");
+
+        note.style.color = color;
+
+        note.innerText = msg;
+    }
+
+    // Clear Fields
+
+    function clearFields(){
+
+        document.getElementById("patient").value = "";
+
+        document.getElementById("age").value = "";
+
+        document.getElementById("drug").value = "";
+
+        document.getElementById("dosage").value = "";
+
+        document.getElementById("days").value = "";
+    }
+
+</script>
+
+</body>
+</html>
